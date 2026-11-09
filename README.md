@@ -1,4 +1,4 @@
-# Controle de Estoque — Kits de Onboarding 📦
+# Controle de Estoque — Kits de Onboarding 📦🎒
 
 Aplicação web para controle de estoque de **kits de onboarding**, com quantidades **total, disponível, reservada e bloqueada**, desenvolvida com ASP.NET Core MVC e SQLite, com tela de login.
 

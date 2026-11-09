@@ -209,6 +209,28 @@ Utilizei o padrão **DAO** com ADO.NET puro para abstrair o acesso ao banco, sem
 - **Histórico de movimentações** (usuário, data e motivo).
 - **Autenticação e autorização** completas, com perfis (quem pode bloquear, quem pode dar saída).
 
+## Uso de IA
+
+Este projeto parte de outro projeto meu, o [Resume Management System](https://github.com/leticiamarinreis/resume-management-system) (ASP.NET Core MVC, Razor, ADO.NET e padrão DAO, com SQL Server). Reaproveitei a organização em camadas (Controllers, DAO, Models, Views).
+### Principais casos de uso
+
+**Caso 1: adaptar a base de SQL Server para SQLite**
+- **Prompt:** "faça uma versão em SQLite", para rodar no meu Mac sem instalar nada.
+- **Resultado:** o acesso a dados foi portado e a IA explicou a diferença de trava entre os bancos: `BEGIN IMMEDIATE` no SQLite no lugar do `UPDLOCK` do SQL Server. Isso é o que garante que duas escritas simultâneas não passem do disponível.
+
+**Caso 2: entender o escopo e definir as entidades**
+- **Pedido:** ajuda para destrinchar o enunciado (total, disponível, reservada e bloqueada) e definir quais entidades o sistema precisava.
+- **Resultado:** quatro entidades: `Estoque` (total, reservada e bloqueada, com o disponível calculado), `Kit` (identificado pelo funcional do colaborador), `Retencao` (reserva ou bloqueio, com identificação própria) e `Usuario` (login).
+
+**Caso 3: testes que provam as regras**
+- **Pedido:** uma bateria de testes de regra (Model) e de integração com SQLite real, incluindo concorrência e "falha no meio desfaz tudo".
+- **Resultado:** testes com 20 e 30 threads disputando o estoque e um teste com *trigger* que força falha no `INSERT`. Para validar, quebrei cada regra de propósito e confirmei que os testes falhavam.
+
+**Caso 4: desenvolver o README**
+- **Prompt:** "quero fazer um read me formatado copia e cola que contemple essas etapas" (as etapas pedidas pelo case), e depois "deixe o read me mais resumido".
+- **Resultado:** a IA me ajudou a organizar e redigir o README nas etapas do case (tecnologias, estrutura, execução, testes, documentação e visão de engenharia), com tabelas de funcionalidades e campos, e a deixá-lo mais objetivo.
+- **Decisão minha:** o conteúdo descreve o que o projeto faz; eu revisei o texto para que regras, premissas e limitações correspondam ao que foi implementado.
+
 ## Visão de engenharia: 5 aspectos mais importantes
 
 1. **Consistência do estoque:** é o coração do problema; disponível calculado, validação antes de alterar, transação e `CHECK` se protegem entre si.

@@ -1,25 +1,17 @@
 # Controle de Estoque — Kits de Onboarding
 
-Controle de estoque de **kits de onboarding** com quantidades **total, disponível, reservada e bloqueada**, feito em **C# (.NET 8)**, ASP.NET Core MVC e SQLite, com tela de login.
+Aplicação web para controle de estoque de **kits de onboarding**, com quantidades **total, disponível, reservada e bloqueada**, desenvolvida com ASP.NET Core MVC e SQLite, com tela de login.
 
-**Sumário:** 1. Tecnologias · 2. Estrutura do projeto · 3. Como executar · 4. Testes · 5. Documentação · 6. Visão de engenharia
+## Tecnologias
 
----
+- C# + .NET 8: tipagem forte ajuda a manter as regras de estoque corretas
+- ASP.NET Core MVC + Razor + Bootstrap (sem JavaScript): separa regra, acesso a dados e tela; telas renderizadas no servidor
+- SQLite: roda sem instalar nada, o banco é criado sozinho
+- ADO.NET puro + padrão DAO: poucas consultas, legíveis em SQL, com controle explícito da transação
+- Autenticação por cookie
+- xUnit: testes de regra (Model) e de integração (SQLite real)
 
-## 1. Tecnologias utilizadas e por quê
-
-| Tecnologia | Por quê |
-|---|---|
-| **C# / .NET 8** | Tipagem forte ajuda a manter as regras de estoque corretas; roda em Windows, macOS e Linux. |
-| **ASP.NET Core MVC + Razor + Bootstrap (sem JavaScript)** | Separa regra, acesso a dados e tela; entrega login, cookies e proteção CSRF prontos; telas simples, renderizadas no servidor. |
-| **SQLite** | Roda sem instalar nada (o banco é criado sozinho), ideal para um case fácil de avaliar. |
-| **ADO.NET puro + padrão DAO** | Poucas consultas, legíveis em SQL puro; o controle explícito da transação (`BEGIN IMMEDIATE`) é essencial para a concorrência. |
-| **Autenticação por cookie** | Padrão do ASP.NET Core, sem dependências extras; a senha nunca é guardada em texto. |
-| **xUnit** | Padrão do ecossistema .NET; testa as regras isoladas e a integração com SQLite real, incluindo concorrência. |
-
----
-
-## 2. Estrutura do projeto
+## Estrutura do Projeto
 
 ```
 ControleEstoque/
@@ -70,66 +62,9 @@ ControleEstoque/
 └── README.md
 ```
 
-> `App_Data/estoque.db` é criado sozinho na primeira execução (não vem no repositório).
+O `App_Data/estoque.db` é criado sozinho na primeira execução.
 
-### Responsabilidade de cada pasta
-
-| Pasta | O que tem | Regra de ouro |
-|---|---|---|
-| **Models** | `Estoque` (todas as regras de quantidade), `Kit`, `Retencao` (reserva/bloqueio), `Usuario` e `EstoqueException` (erro de regra) | Não conhece banco nem tela: dá para testar sem infraestrutura. |
-| **DAO** | `ConexaoDAO` (conexão e criação das tabelas), `EstoqueDAO` (SQL e transações), `UsuarioDAO` (login) | Não repete regra nenhuma: chama o Model. |
-| **Controllers** | Login, tela principal, operações de estoque, kits e reservas/bloqueios | Só recebem o pedido, chamam o DAO e devolvem a tela. |
-| **Views** | Telas Razor + Bootstrap, sem JavaScript | Só mostram dados e formulários. |
-| **App_Data** | Banco SQLite | Para zerar tudo, apague a pasta. |
-| **tests** | Regras do Model e integração com SQLite real (transação, *rollback* e concorrência) | Cada regra do enunciado tem um teste. |
-
----
-
-## 3. Como executar
-
-**Requisito:** .NET 8 SDK (ou mais novo).
-
-```bash
-dotnet run --project src/ControleEstoque
-```
-
-Abra **http://localhost:5192** e entre com **admin** / **admin123** (definidos em `appsettings.json`). O banco é criado sozinho em `src/ControleEstoque/App_Data/estoque.db`; para zerar tudo, pare o programa e apague essa pasta.
-
-**Para experimentar:** na tela principal registre uma **Entrada** → cadastre um kit em **Kits → Novo kit** (só o funcional, 7 números) e veja o disponível cair em 1 → tente retirar, reservar ou bloquear mais que o disponível (a tela mostra o erro e nada muda) → libere pela lista **Reservas e bloqueios** (dá para buscar por `RES-0001`).
-
----
-
-## 4. Testes automatizados
-
-```bash
-dotnet test
-```
-
-- **Regras (Model):** rápidas, sem banco. Cada regra do enunciado tem pelo menos um teste que falha se ela for quebrada.
-- **Integração (SQLite real):** transação, *rollback* e concorrência.
-  - Se o `INSERT` do kit falha (forçado por um *trigger*), a unidade descontada volta.
-  - 20 threads disputando 5 unidades: só 5 cadastros passam.
-  - 30 threads reservando 1 unidade de um estoque de 10: exatamente 10 passam e 20 são recusadas.
-- Para validar os testes, quebrei cada regra de propósito e eles falharam.
-- Os testes de concorrência provam o SQLite local; não substituem teste de carga em outro banco.
-
----
-
-## 5. Documentação
-
-### 5.1 Visão geral
-
-O estoque tem um total; parte fica **reservada** (para uma solicitação/pedido), parte **bloqueada** (indisponível) e o resto é o **disponível**. Pode haver várias reservas e bloqueios ao mesmo tempo.
-
-| Funcionalidade | Onde | Regra |
-|---|---|---|
-| Cadastrar kit | Kits | Só o funcional (7 números); `IdKit` automático; um kit por colaborador; leva 1 unidade do disponível (recusa se não houver) |
-| Entrada / Saída | Principal | Entrada soma ao total; saída só até o disponível |
-| Reservar / Bloquear | Principal | Só até o disponível; exige solicitação/motivo; gera `RES-0001` / `BLQ-0001` |
-| Liberar | Principal ou Reservas e bloqueios | Devolve ao disponível; não libera duas vezes |
-| Consultar | Principal e Reservas e bloqueios | Saldos e busca pela identificação |
-
-### 5.2 Arquitetura
+A **regra de negócio fica toda no Model `Estoque`**, que não conhece banco nem tela. O **DAO** cuida do SQL e das transações e não repete regra: chama o Model. Os **Controllers** só recebem o pedido e chamam o DAO. Assim as camadas ficam com responsabilidades bem definidas e fáceis de testar isoladamente.
 
 Fluxo de uma operação (exemplo: Reservar):
 
@@ -137,49 +72,147 @@ Fluxo de uma operação (exemplo: Reservar):
 Controller → EstoqueDAO.Reservar → (transação) lê o Estoque → Estoque.Reservar(qtd) valida e altera → grava → Commit
 ```
 
-A regra fica só no Model (testável sem infraestrutura); o DAO cuida de banco e transação.
+A configuração da aplicação (usuário e senha padrão do login) fica em `appsettings.json`.
 
-### 5.3 Principais decisões técnicas
+Os testes seguem organização por responsabilidade na pasta `tests/`: regras do Model, sem banco, e integração com SQLite real (transação, *rollback* e concorrência). A execução é padronizada por `dotnet test`.
 
-1. **Disponível é calculado:** `Disponivel = Total - Reservada - Bloqueada`. Assim os quatro números nunca ficam fora de sincronia.
-2. **Validar antes de alterar:** uma operação inválida lança `EstoqueException` e o objeto continua como estava.
-3. **Toda escrita em transação `BEGIN IMMEDIATE`:** o SQLite deixa só uma escrita por vez; a segunda lê o saldo já atualizado e é recusada se não houver disponível. Isso resolve a concorrência.
-4. **O banco também se protege:** `CHECK` (quantidades ≥ 0, `Reservada + Bloqueada <= Total`, funcional com 7 dígitos) e `UNIQUE` no funcional. É a última linha de defesa.
-5. **Reserva e bloqueio na mesma tabela (`Retencao`)**, separados por `Tipo`, com identificação própria. Liberar usa esse `Id` e marca como liberado, o que impede liberar duas vezes.
-6. **Cadastrar kit e descontar do estoque na mesma transação:** se o `INSERT` falha, a unidade volta.
-7. **Funcional validado em três lugares:** tela, Model/DAO e banco.
-8. **Erros de regra viram mensagem na tela;** erros inesperados desfazem a transação e mostram uma página de erro.
+## Funcionalidades
 
-### 5.4 Premissas
+| Funcionalidade | Onde fazer | Regra |
+|---|---|---|
+| Login | Tela de login | Toda tela exige login, exceto a de login e a de erro |
+| Entrada | Principal → Entrada | Soma ao total |
+| Saída | Principal → Saída | Só até o disponível |
+| Reservar | Principal → Reservar | Só até o disponível; exige solicitação/pedido; gera `RES-0001` |
+| Bloquear | Principal → Bloquear | Só até o disponível; exige motivo; gera `BLQ-0001` |
+| Liberar | Principal ou Reservas e bloqueios | Devolve ao disponível; não libera duas vezes |
+| Cadastrar kit | Kits → Novo kit | Só o funcional; leva 1 unidade do disponível (recusa se não houver) |
+| Consultar | Principal (saldos) e Reservas e bloqueios | Busca pela identificação (ex.: `RES-0001`) |
 
-- Há **um único estoque de kits**; a quantidade é colocada pelo usuário na tela principal (**Entrada**).
+O estoque pode ter várias reservas e bloqueios ao mesmo tempo, de solicitações diferentes. As operações da tela principal (Entrada, Saída, Reservar, Bloquear e Liberar) acontecem nela; a aba **Kits** só cadastra kits.
+
+## Campos
+
+Cadastro de kit (Kits → Novo kit):
+
+| Campo | Tipo | Obrigatório | Regras |
+|---|---|---|---|
+| funcional | string | ✅ | Exatamente 7 números; único (um kit por colaborador) |
+
+O `IdKit` é gerado pelo sistema.
+
+Entrada e Saída:
+
+| Campo | Tipo | Obrigatório | Regras |
+|---|---|---|---|
+| quantidade | int | ✅ | Inteiro positivo; na saída, não pode passar do disponível |
+
+Reservar e Bloquear:
+
+| Campo | Tipo | Obrigatório | Regras |
+|---|---|---|---|
+| quantidade | int | ✅ | Inteiro positivo, até o disponível |
+| solicitação/pedido (reserva) ou motivo (bloqueio) | string | ✅ | Texto livre, até 100 caracteres |
+
+Resultado: a identificação gerada (`RES-0001` ou `BLQ-0001`), usada depois para liberar. A liberação é sempre por inteiro.
+
+Cálculo do saldo: `Disponível = Total - Reservada - Bloqueada`.
+
+## Configuração Local
+
+**1. Instalar o requisito**
+
+.NET 8 SDK (ou mais novo).
+
+**2. Executar a aplicação**
+
+```bash
+dotnet run --project src/ControleEstoque
+```
+
+**3. Acessar**
+
+Abra http://localhost:5192 e entre com **admin** / **admin123** (definidos em `appsettings.json`).
+
+**4. Executar os testes**
+
+```bash
+dotnet test
+```
+
+**5. Zerar os dados**
+
+Pare o programa e apague a pasta `src/ControleEstoque/App_Data`.
+
+**Fluxo para experimentar:** registre uma **Entrada** → cadastre um kit em **Kits → Novo kit** e veja o disponível cair em 1 → tente retirar, reservar ou bloquear mais que o disponível (a tela mostra o erro e nada muda) → reserve e bloqueie em solicitações diferentes → libere pela lista **Reservas e bloqueios**.
+
+## Testes
+
+- **Regras (Model):** rápidas, sem banco. Cada regra do enunciado tem pelo menos um teste que falha se ela for quebrada.
+- **Integração (SQLite real):**
+  - Se o `INSERT` do kit falha (forçado por um *trigger*), a unidade descontada volta.
+  - 20 threads disputando 5 unidades: só 5 cadastros de kit passam.
+  - 30 threads reservando 1 unidade de um estoque de 10: exatamente 10 passam e 20 são recusadas.
+- Para validar os testes, quebrei cada regra de propósito e eles falharam.
+
+## Premissas por funcionalidade
+
+- Há **um único estoque de kits** (geral); a quantidade é colocada pelo usuário na tela principal.
 - O kit pertence a **um colaborador** (funcional de 7 números, único) e não tem nome, descrição nem quantidade.
-- **Cadastrar um kit desconta 1 unidade** do total e do disponível.
-- Quantidades são **inteiros positivos**; liberação é **por inteiro**.
-- "Solicitação/pedido" e "motivo" são **texto livre** obrigatório (até 100 caracteres).
-- Reservas e bloqueios **não expiram**; há **um único perfil de usuário** (o padrão é criado na 1ª execução).
+- **Cadastrar um kit desconta 1 unidade** do total e do disponível; unidades reservadas ou bloqueadas não servem para isso.
+- **Saída** retira do total; **entrada** soma ao total.
+- Reservas e bloqueios **não expiram** e são liberados **por inteiro**.
+- "Solicitação/pedido" e "motivo" são **texto livre** obrigatório; não existe cadastro de solicitações.
+- Há **um único perfil de usuário**: quem entra pode fazer tudo. O usuário padrão é criado na primeira execução.
 
-### 5.5 Limitações conhecidas
+## Decisões do Candidato
 
-- **Sem histórico de movimentações** (quem fez o quê e quando); só reservas e bloqueios têm data de criação e liberação.
-- Login simples: sem cadastro de usuários, perfis ou troca de senha (altere `Login:SenhaPadrao` em `appsettings.json` **antes** da 1ª execução).
+### 1. Por que a regra fica no Model e não no DAO
+
+Decidi concentrar todas as regras de quantidade na classe `Estoque`, sem nenhuma dependência de banco. Assim as regras são testadas rapidamente, sem infraestrutura, e o DAO só se preocupa com SQL e transação. A regra existe em um lugar só.
+
+### 2. Padrões aplicados
+
+Utilizei o padrão **DAO** com ADO.NET puro para abstrair o acesso ao banco, sem ORM e sem camadas extras. O case pede simplicidade, e as consultas são poucas e legíveis. Os Controllers só delegam.
+
+### 3. Como a consistência e a concorrência foram tratadas
+
+- **Disponível é calculado, não gravado.** Guardamos `Total`, `Reservada` e `Bloqueada`, então os quatro números nunca ficam fora de sincronia.
+- **Validar antes de alterar.** Uma operação inválida lança `EstoqueException` e o objeto continua como estava.
+- **Toda escrita roda em transação `BEGIN IMMEDIATE`.** O SQLite deixa só uma escrita por vez; a segunda lê o saldo já atualizado e é recusada se não houver disponível.
+- **O banco também se protege** com `CHECK` (quantidades ≥ 0, `Reservada + Bloqueada <= Total`, funcional com 7 dígitos) e `UNIQUE` no funcional. É a última linha de defesa.
+- **Reserva e bloqueio ficam na mesma tabela (`Retencao`)**, separados por `Tipo`. Cada um tem identificação própria; liberar usa esse `Id` e marca o registro como liberado, o que impede liberar duas vezes.
+- **Cadastrar kit e descontar do estoque acontecem na mesma transação:** se o `INSERT` falha, a unidade volta.
+
+## Destaques da implementação
+
+- **Cadastro de kit ligado ao estoque:** o kit só informa o funcional e consome 1 unidade do disponível, de forma atômica e segura contra concorrência.
+- **Identificação de reservas e bloqueios** (`RES-0001`/`BLQ-0001`), com busca na tela.
+- **Defesa em três camadas** contra estado inválido: Model, transação e `CHECK`/`UNIQUE` no banco.
+- **Funcional validado em três lugares:** tela, Model/DAO e banco.
+- **Login por cookie.**
+- **Erros de regra viram mensagem na tela;** erros inesperados desfazem a transação e mostram uma página de erro.
+
+## Limitações conhecidas
+
+- Sem histórico de movimentações.
+- Login simples (sem cadastro de usuários, perfis ou troca de senha).
 - Sem liberação parcial, expiração de reservas, edição/exclusão de kits ou paginação.
-- SQLite aceita **uma escrita por vez**: ótimo para o case, limite para volume alto.
+- SQLite aceita uma escrita por vez.
+- Os testes de concorrência provam o SQLite local; não substituem teste de carga em outro banco.
 
-### 5.6 O que eu faria diferente em produção
+## O que eu faria diferente em produção
 
-- **Banco cliente-servidor** (PostgreSQL/SQL Server) com bloqueio por linha (`SELECT ... FOR UPDATE`) ou controle otimista (coluna de versão).
-- **Histórico imutável de movimentações** (*ledger*) com usuário, data e motivo, para auditar e reconstruir o saldo.
+ - **Banco no Amazon RDS** (PostgreSQL ou SQL Server) no lugar do SQLite, para ter mais governança: backups automáticos, criptografia e controle de acesso. Também permitiria várias escritas ao mesmo tempo, usando bloqueio por linha (`SELECT ... FOR UPDATE`).
+- **Log das operações no Amazon CloudWatch Logs:** cada entrada, saída, reserva, bloqueio, liberação e cadastro de kit gravaria um registro com usuário, data e resultado. Para saber quem mexeu nos recursos da própria AWS, usaria o **AWS CloudTrail**.
+- **Kafka na API:** depois de cada operação confirmada, a API publicaria um evento (por exemplo, `reserva-criada`, `reserva-liberada` ou `kit-cadastrado`) em um tópico. Outros serviços leriam esses eventos, por exemplo para montar o histórico de movimentações ou enviar notificações, sem deixar a API mais lenta nem acoplada a eles.
+- **Histórico de movimentações** (usuário, data e motivo).
 - **Autenticação e autorização** completas, com perfis (quem pode bloquear, quem pode dar saída).
-- **API REST com idempotência**, para um *retry* de rede não duplicar uma reserva.
-- **Migrações versionadas**, logs estruturados, métricas e **CI** rodando os testes, incluindo teste de carga.
 
----
-
-## 6. Visão de engenharia: 5 aspectos mais importantes
+## Visão de engenharia: 5 aspectos mais importantes
 
 1. **Consistência do estoque:** é o coração do problema; disponível calculado, validação antes de alterar, transação e `CHECK` se protegem entre si.
 2. **Concorrência:** duas reservas simultâneas não podem usar a mesma unidade; `BEGIN IMMEDIATE` hoje, bloqueio por linha ou versão otimista em produção.
-3. **Testes que provam as regras:** cada regra do enunciado tem um teste que falha se ela for quebrada, incluindo rollback e concorrência com SQLite real.
+3. **Testes que provam as regras:** cada regra do enunciado tem um teste que falha se ela for quebrada, incluindo *rollback* e concorrência com SQLite real.
 4. **Simplicidade e legibilidade:** poucas classes e regra em um lugar só, para quem lê entender rápido e evoluir.
 5. **Rastreabilidade e evolução:** hoje há identificação por reserva/bloqueio; o próximo passo é um histórico imutável de movimentações.

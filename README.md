@@ -206,8 +206,8 @@ Utilizei o padrão **DAO** com ADO.NET puro para abstrair o acesso ao banco, sem
  - **Banco no Amazon RDS** (PostgreSQL ou SQL Server) no lugar do SQLite, para ter mais governança: backups automáticos, criptografia e controle de acesso. Também permitiria várias escritas ao mesmo tempo, usando bloqueio por linha (`SELECT ... FOR UPDATE`).
 - **Log das operações no Amazon CloudWatch Logs:** cada entrada, saída, reserva, bloqueio, liberação e cadastro de kit gravaria um registro com usuário, data e resultado. Para saber quem mexeu nos recursos da própria AWS, usaria o **AWS CloudTrail**.
 - **Kafka na API:** depois de cada operação confirmada, a API publicaria um evento (por exemplo, `reserva-criada`, `reserva-liberada` ou `kit-cadastrado`) em um tópico. Outros serviços leriam esses eventos, por exemplo para montar o histórico de movimentações ou enviar notificações, sem deixar a API mais lenta nem acoplada a eles.
-- **Histórico de movimentações** (usuário, data e motivo).
 - **Autenticação e autorização** completas, com perfis (quem pode bloquear, quem pode dar saída).
+- **Containerização e deploy na AWS com Docker, Amazon ECR e ECS/Fargate:** criaria um Dockerfile para empacotar a aplicação ASP.NET Core e suas dependências, garantindo um ambiente padronizado entre desenvolvimento, testes e produção. Utilizaria Docker Compose para facilitar a execução local e o Amazon ECR para armazenar e versionar as imagens Docker. Em produção, publicaria a aplicação no Amazon ECS com Fargate, permitindo executar e gerenciar os containers sem precisar administrar servidores.
 
 ## Uso de IA
 
@@ -237,7 +237,7 @@ Este projeto parte de outro projeto meu, o [Resume Management System](https://gi
 2. **Concorrência:** duas reservas simultâneas não podem usar a mesma unidade; `BEGIN IMMEDIATE` hoje, bloqueio por linha ou versão otimista em produção.
 3. **Testes que provam as regras:** cada regra do enunciado tem um teste que falha se ela for quebrada, incluindo *rollback* e concorrência com SQLite real.
 4. **Simplicidade e legibilidade:** poucas classes e regra em um lugar só, para quem lê entender rápido e evoluir.
-5. **Rastreabilidade e evolução:** hoje há identificação por reserva/bloqueio; o próximo passo é um histórico imutável de movimentações.
+5. **Princípio da Responsabilidade Única (SRP):** cada classe ou módulo deve ter uma única razão para mudar, garantindo clareza, testabilidade e evolução segura das regras.
 
 ## Produto único e evolução para múltiplos produtos
 

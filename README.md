@@ -1,4 +1,4 @@
-# Controle de Estoque — Kits de Onboarding
+# Controle de Estoque — Kits de Onboarding 📦
 
 Aplicação web para controle de estoque de **kits de onboarding**, com quantidades **total, disponível, reservada e bloqueada**, desenvolvida com ASP.NET Core MVC e SQLite, com tela de login.
 
@@ -208,6 +208,7 @@ Utilizei o padrão **DAO** com ADO.NET puro para abstrair o acesso ao banco, sem
 - **Kafka na API:** depois de cada operação confirmada, a API publicaria um evento (por exemplo, `reserva-criada`, `reserva-liberada` ou `kit-cadastrado`) em um tópico. Outros serviços leriam esses eventos, por exemplo para montar o histórico de movimentações ou enviar notificações, sem deixar a API mais lenta nem acoplada a eles.
 - **Autenticação e autorização** completas, com perfis (quem pode bloquear, quem pode dar saída).
 - **Containerização e deploy na AWS com Docker, Amazon ECR e ECS/Fargate:** criaria um Dockerfile para empacotar a aplicação ASP.NET Core e suas dependências, garantindo um ambiente padronizado entre desenvolvimento, testes e produção. Utilizaria Docker Compose para facilitar a execução local e o Amazon ECR para armazenar e versionar as imagens Docker. Em produção, publicaria a aplicação no Amazon ECS com Fargate, permitindo executar e gerenciar os containers sem precisar administrar servidores.
+- **Escalabilidade e processamento assíncrono na AWS:** utilizaria o Application Load Balancer para distribuir as requisições entre as instâncias da aplicação, evitando sobrecarga em uma única instância. Também utilizaria o Amazon SQS para processar tarefas assíncronas reduzindo o tempo de resposta das operações principais e desacoplando o processamento dessas tarefas da aplicação.
 
 ## Uso de IA
 

@@ -1,0 +1,144 @@
+@model List<Kit>
+@{
+    ViewData["Title"] = "Início";
+    var estoque = (Estoque)ViewBag.Estoque;
+    var retencoes = (List<Retencao>)ViewBag.Retencoes;
+    int total = estoque.Total, disponivel = estoque.Disponivel, reservada = estoque.Reservada, bloqueada = estoque.Bloqueada;
+    int Pct(int parte) => total == 0 ? 0 : (int)Math.Round(100.0 * parte / total);
+    string saudacao = DateTime.Now.Hour < 12 ? "Bom dia" : DateTime.Now.Hour < 18 ? "Boa tarde" : "Boa noite";
+    var comHome = new ViewDataDictionary(ViewData) { ["Home"] = true };
+}
+
+<section class="heroi">
+    <div>
+        <h1>@saudacao, @User.Identity?.Name</h1>
+        <p class="mb-0">Coloque a quantidade de kits no estoque aqui. Cada kit cadastrado leva 1 unidade do disponível.</p>
+    </div>
+    <div class="heroi-acoes">
+        <a class="btn btn-light" asp-controller="Kits" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>Novo kit</a>
+        <a class="btn btn-outline-light" asp-controller="Kits" asp-action="Index"><i class="bi bi-gift me-1"></i>Ver kits</a>
+        <a class="btn btn-outline-light" asp-controller="Retencoes" asp-action="Index"><i class="bi bi-lock me-1"></i>Reservas e bloqueios</a>
+    </div>
+</section>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <a class="indicador" asp-controller="Kits" asp-action="Index">
+            <i class="bi bi-gift"></i>
+            <div><div class="indicador-valor">@ViewBag.TotalKits</div><div class="indicador-nome">Kits cadastrados</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="indicador indicador-ok">
+            <i class="bi bi-box-seam"></i>
+            <div><div class="indicador-valor">@disponivel</div><div class="indicador-nome">Unidades disponíveis</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="indicador indicador-reservada" asp-controller="Retencoes" asp-action="Index">
+            <i class="bi bi-bookmark-check"></i>
+            <div><div class="indicador-valor">@reservada</div><div class="indicador-nome">Unidades reservadas</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="indicador indicador-bloqueada" asp-controller="Retencoes" asp-action="Index">
+            <i class="bi bi-slash-circle"></i>
+            <div><div class="indicador-valor">@bloqueada</div><div class="indicador-nome">Unidades bloqueadas</div></div>
+        </a>
+    </div>
+</div>
+
+<section id="estoque">
+    <div class="page-head"><h2 class="mb-0">Estoque de kits</h2></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="saldo"><div class="saldo-nome">Total</div><div class="saldo-valor">@estoque.Total</div></div></div>
+        <div class="col-6 col-md-3"><div class="saldo saldo-disponivel"><div class="saldo-nome">Disponível</div><div class="saldo-valor">@estoque.Disponivel</div></div></div>
+        <div class="col-6 col-md-3"><div class="saldo saldo-reservada"><div class="saldo-nome">Reservada</div><div class="saldo-valor">@estoque.Reservada</div></div></div>
+        <div class="col-6 col-md-3"><div class="saldo saldo-bloqueada"><div class="saldo-nome">Bloqueada</div><div class="saldo-valor">@estoque.Bloqueada</div></div></div>
+    </div>
+
+    <div class="barra-estoque mb-2" role="img" aria-label="Disponível @Pct(disponivel)%, reservada @Pct(reservada)%, bloqueada @Pct(bloqueada)%">
+        <span class="b-disponivel" style="width: @Pct(disponivel)%"></span>
+        <span class="b-reservada" style="width: @Pct(reservada)%"></span>
+        <span class="b-bloqueada" style="width: @Pct(bloqueada)%"></span>
+    </div>
+    <ul class="legenda mb-4">
+        <li><i class="b-disponivel"></i>Disponível <strong>@Pct(disponivel)%</strong></li>
+        <li><i class="b-reservada"></i>Reservada <strong>@Pct(reservada)%</strong></li>
+        <li><i class="b-bloqueada"></i>Bloqueada <strong>@Pct(bloqueada)%</strong></li>
+    </ul>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="cartao h-100"><h3 class="cartao-titulo h5">Entrada <small class="dica">(quantidade que você coloca no estoque)</small></h3><div class="cartao-corpo">
+                <form asp-controller="Estoque" asp-action="Entrada" method="post" class="d-flex gap-2">
+                    <input class="form-control" name="quantidade" type="number" min="1" placeholder="Quantidade" required aria-label="Quantidade" />
+                    <button class="btn btn-success nowrap" type="submit">Registrar entrada</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="cartao h-100"><h3 class="cartao-titulo h5">Saída <small class="dica">(até @disponivel)</small></h3><div class="cartao-corpo">
+                <form asp-controller="Estoque" asp-action="Saida" method="post" class="d-flex gap-2">
+                    <input class="form-control" name="quantidade" type="number" min="1" max="@disponivel" placeholder="Quantidade" required aria-label="Quantidade" />
+                    <button class="btn btn-warning nowrap" type="submit">Registrar saída</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="cartao h-100"><h3 class="cartao-titulo h5">Reservar <small class="dica">(até @disponivel)</small></h3><div class="cartao-corpo">
+                <form asp-controller="Retencoes" asp-action="Reservar" method="post" class="row g-2">
+                    <div class="col-4"><input class="form-control" name="quantidade" type="number" min="1" max="@disponivel" placeholder="Qtd." required aria-label="Quantidade" /></div>
+                    <div class="col-8"><input class="form-control" name="solicitacao" maxlength="100" placeholder="Solicitação/pedido" required aria-label="Solicitação ou pedido" /></div>
+                    <div class="col-12"><button class="btn btn-primary w-100" type="submit">Reservar</button></div>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="cartao h-100"><h3 class="cartao-titulo h5">Bloquear <small class="dica">(até @disponivel)</small></h3><div class="cartao-corpo">
+                <form asp-controller="Retencoes" asp-action="Bloquear" method="post" class="row g-2">
+                    <div class="col-4"><input class="form-control" name="quantidade" type="number" min="1" max="@disponivel" placeholder="Qtd." required aria-label="Quantidade" /></div>
+                    <div class="col-8"><input class="form-control" name="motivo" maxlength="100" placeholder="Motivo" required aria-label="Motivo" /></div>
+                    <div class="col-12"><button class="btn btn-danger w-100" type="submit">Bloquear</button></div>
+                </form>
+            </div></div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="cartao h-100">
+            <h2 class="cartao-titulo">Reservas e bloqueios ativos</h2>
+            <partial name="_TabelaRetencoes" model="retencoes" view-data="comHome" />
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="cartao h-100">
+            <h2 class="cartao-titulo d-flex justify-content-between align-items-center">
+                Últimos kits cadastrados
+                <a class="btn btn-sm btn-primary" asp-controller="Kits" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>Novo kit</a>
+            </h2>
+            <div class="tabela-rolavel">
+                <table class="table table-hover align-middle">
+                    <thead><tr><th>IdKit</th><th>Funcional</th><th>Cadastrado em</th></tr></thead>
+                    <tbody>
+                        @foreach (var k in Model)
+                        {
+                            <tr>
+                                <td><strong>@k.IdKit</strong></td>
+                                <td>@k.Funcional</td>
+                                <td class="nowrap">@k.CriadoEm.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                        @if (Model.Count == 0)
+                        {
+                            <tr><td colspan="3" class="vazio">Nenhum kit ainda. <a asp-controller="Kits" asp-action="Create">Cadastre o primeiro</a>.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

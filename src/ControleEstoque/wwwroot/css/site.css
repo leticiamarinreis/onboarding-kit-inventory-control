@@ -1,0 +1,200 @@
+/* =========================================================
+   OnboardKit
+   1. Tokens   2. Base   3. Componentes   4. Início   5. Login
+   Bootstrap 5 fornece grid, tabelas, formulários e botões;
+   aqui ficam as cores e pequenos ajustes.
+   ========================================================= */
+
+/* ---------- 1. Tokens ---------- */
+:root {
+    --marca: #12304a;
+    --marca-clara: #1d4a6e;
+    --destaque: #0f8b8d;
+    --ok: #1b8a4b;
+    --ok-fundo: #e5f4ec;
+    --pendente: #b86a00;
+    --pendente-fundo: #fdf0d9;
+    --erro: #c73a32;
+    --reservada: #1d6fd1;
+    --reservada-fundo: #e6f0fc;
+    --bloqueada: #c73a32;
+    --bloqueada-fundo: #fbe8e6;
+
+    --tinta: #1c2733;
+    --tinta-suave: #5a6775;
+    --fundo: #f3f5f8;
+    --linha: #dde2e8;
+}
+
+/* ---------- 2. Base ---------- */
+body {
+    background: var(--fundo);
+    color: var(--tinta);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+h1 { font-size: 1.7rem; font-weight: 650; }
+h2 { font-size: 1.15rem; font-weight: 650; }
+
+a { color: var(--marca-clara); }
+:focus-visible { outline: 3px solid #f2b33d; outline-offset: 2px; }
+
+.btn-primary { background: var(--marca-clara); border-color: var(--marca-clara); }
+.btn-primary:hover, .btn-primary:focus { background: var(--marca); border-color: var(--marca); }
+.btn-outline-primary { color: var(--marca-clara); border-color: var(--marca-clara); }
+.btn-outline-primary:hover { background: var(--marca-clara); border-color: var(--marca-clara); }
+
+.barra { background: var(--marca); margin-bottom: 1.75rem; }
+.barra .navbar-brand { color: #fff; font-weight: 700; letter-spacing: 0.2px; }
+.barra .nav-link { color: #cfdbe6; font-weight: 600; }
+.barra .nav-link:hover, .barra .nav-link.active { color: #fff; text-decoration: underline; text-underline-offset: 6px; }
+.barra .navbar-toggler { border-color: rgba(255, 255, 255, 0.4); }
+.barra .navbar-toggler-icon { filter: invert(1); }
+.usuario-logado { color: #e6eef5; font-size: 0.95rem; }
+
+.rodape { color: var(--tinta-suave); font-size: 0.88rem; }
+
+/* ---------- 3. Componentes ---------- */
+.page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+.page-head h1 { margin: 0; }
+
+.cartao { background: #fff; border: 1px solid var(--linha); border-radius: 10px; overflow: hidden; }
+.cartao > .cartao-titulo { padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--linha); margin: 0; }
+.cartao > .cartao-corpo { padding: 1.1rem; }
+.cartao .table { margin-bottom: 0; }
+.cartao .table thead th { background: #f7f9fb; color: var(--tinta-suave); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3px; }
+.tabela-rolavel { overflow-x: auto; }
+
+.dica { color: var(--tinta-suave); font-size: 0.9rem; }
+.nowrap { white-space: nowrap; }
+.acoes-linha { white-space: nowrap; text-align: right; }
+.vazio { text-align: center; color: var(--tinta-suave); padding: 1.75rem 1rem !important; }
+.erro-campo { color: var(--erro); font-size: 0.9rem; }
+.txt-erro { color: var(--erro); }
+.campo-data { min-width: 150px; }
+.dados dt { color: var(--tinta-suave); font-weight: 600; }
+
+.selo { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+.selo-ok { background: var(--ok-fundo); color: var(--ok); }
+.selo-pendente { background: var(--pendente-fundo); color: var(--pendente); }
+.selo-reserva { background: var(--reservada-fundo); color: var(--reservada); }
+.selo-bloqueio { background: var(--bloqueada-fundo); color: var(--bloqueada); }
+.selo-neutro { background: #e9eef3; color: var(--marca-clara); }
+
+.id-destaque { text-align: center; padding: 0.6rem 1.4rem; border-right: 1px solid var(--linha); }
+.id-valor { font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--marca); }
+
+/* Cores do estoque */
+.txt-disponivel { color: var(--ok); }
+.txt-reservada { color: var(--reservada); }
+.txt-bloqueada { color: var(--bloqueada); }
+
+.saldo { background: #fff; border: 1px solid var(--linha); border-radius: 12px; padding: 0.9rem 1rem; text-align: center; border-top: 4px solid var(--marca-clara); }
+.saldo-nome { color: var(--tinta-suave); font-size: 0.9rem; }
+.saldo-valor { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.saldo-disponivel { border-top-color: var(--ok); }
+.saldo-disponivel .saldo-valor { color: var(--ok); }
+.saldo-reservada { border-top-color: var(--reservada); }
+.saldo-reservada .saldo-valor { color: var(--reservada); }
+.saldo-bloqueada { border-top-color: var(--bloqueada); }
+.saldo-bloqueada .saldo-valor { color: var(--bloqueada); }
+
+.barra-estoque { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: #e9eef3; }
+.barra-estoque span { display: block; height: 100%; }
+.b-disponivel { background: var(--ok); }
+.b-reservada { background: var(--reservada); }
+.b-bloqueada { background: var(--bloqueada); }
+.legenda { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.92rem; }
+.legenda i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 0.45rem; }
+
+/* ---------- 4. Início ---------- */
+.heroi {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    padding: 1.75rem 1.9rem;
+    margin-bottom: 1.5rem;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(120deg, var(--marca) 0%, var(--marca-clara) 60%, var(--destaque) 130%);
+}
+.heroi h1 { margin-bottom: 0.25rem; }
+.heroi p { color: #d6e4ef; }
+.heroi-acoes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.indicador {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.1rem;
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: 12px;
+    color: var(--tinta);
+    text-decoration: none;
+    height: 100%;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+.indicador:hover { box-shadow: 0 6px 18px rgba(18, 48, 74, 0.12); transform: translateY(-2px); color: var(--tinta); }
+.indicador > i { font-size: 1.9rem; color: var(--marca-clara); }
+.indicador-pendente > i { color: var(--pendente); }
+.indicador-ok > i { color: var(--ok); }
+.indicador-reservada > i { color: var(--reservada); }
+.indicador-bloqueada > i { color: var(--bloqueada); }
+.indicador-valor { font-size: 1.9rem; font-weight: 700; line-height: 1.05; }
+.indicador-nome { color: var(--tinta-suave); font-size: 0.9rem; }
+
+.passos { padding-left: 1.2rem; margin: 0; color: var(--tinta-suave); }
+.passos li { margin-bottom: 0.3rem; }
+
+.linha-aberta > td { background: #eaf2fb !important; }
+.painel-kit { scroll-margin-top: 1rem; }
+
+/* ---------- 5. Login ---------- */
+.tela-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--marca) 0%, var(--marca-clara) 100%);
+}
+.login-caixa {
+    display: flex;
+    width: 100%;
+    max-width: 840px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+.login-marca {
+    flex: 1;
+    padding: 2.5rem 2rem;
+    color: #fff;
+    background: linear-gradient(160deg, var(--destaque), var(--marca-clara));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.login-marca > i { font-size: 3rem; }
+.login-marca h1 { margin: 0.5rem 0; }
+.login-marca p { color: #e1f1f1; margin: 0; }
+.login-form { flex: 1; padding: 2.5rem 2rem; }
+
+/* ---------- Telas pequenas ---------- */
+@media (max-width: 700px) {
+    .login-caixa { flex-direction: column; }
+    .login-marca { padding: 1.5rem; }
+    .id-destaque { border-right: 0; }
+    .heroi { padding: 1.25rem; }
+}

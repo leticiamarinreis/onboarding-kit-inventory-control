@@ -1,0 +1,39 @@
+@model List<Kit>
+@{
+    ViewData["Title"] = "Kits";
+    var estoque = (Estoque)ViewBag.Estoque;
+}
+<div class="page-head">
+    <h1>Kits cadastrados</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-1"></i>Novo kit</a>
+</div>
+
+<p class="dica">Aqui os kits só são cadastrados. A quantidade em estoque (hoje: <strong>@estoque.Disponivel disponível</strong>) é controlada na <a asp-controller="Home" asp-action="Index">tela principal</a>.</p>
+
+<div class="cartao">
+    <div class="tabela-rolavel">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>IdKit</th>
+                    <th>Funcional do colaborador</th>
+                    <th>Cadastrado em</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model)
+                {
+                    <tr>
+                        <td><strong>@k.IdKit</strong></td>
+                        <td>@k.Funcional</td>
+                        <td class="nowrap">@k.CriadoEm.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="3" class="vazio">Nenhum kit cadastrado. Comece pelo botão "Novo kit".</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

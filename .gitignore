@@ -1,0 +1,35 @@
+## Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.log
+TestResults/
+*.trx
+coverage*.xml
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## Segredos locais
+appsettings.Local.json
+appsettings.Production.json
+*.pfx
+
+## SO
+.DS_Store
+Thumbs.db
+
+## Banco SQLite local (criado na execução)
+App_Data/
+*.db
+*.db-wal
+*.db-shm

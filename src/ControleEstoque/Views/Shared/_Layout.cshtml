@@ -1,0 +1,56 @@
+@{
+    string controlador = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Ativo(string nome) => string.Equals(controlador, nome, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Controle de Estoque</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg barra">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Controle de Estoque</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+                        aria-controls="menu" aria-expanded="false" aria-label="Abrir menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link @Ativo("Home")" asp-controller="Home" asp-action="Index">Início</a></li>
+                        <li class="nav-item"><a class="nav-link @Ativo("Kits")" asp-controller="Kits" asp-action="Index">Kits</a></li>
+                        <li class="nav-item"><a class="nav-link @Ativo("Retencoes")" asp-controller="Retencoes" asp-action="Index">Reservas e bloqueios</a></li>
+                    </ul>
+                    <form asp-controller="Login" asp-action="Sair" method="post" class="d-flex align-items-center gap-2 usuario-logado">
+                        <span><i class="bi bi-person-circle me-1"></i>@User.Identity?.Name</span>
+                        <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container pb-5">
+        @if (TempData["Sucesso"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center gap-2" role="status"><i class="bi bi-check-circle-fill"></i>@TempData["Sucesso"]</div>
+        }
+        @if (TempData["Erro"] != null)
+        {
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert"><i class="bi bi-x-octagon-fill"></i>@TempData["Erro"] Nada foi alterado.</div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer class="container rodape pb-4">Controle de Estoque &middot; kits de onboarding e controle de estoque</footer>
+
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

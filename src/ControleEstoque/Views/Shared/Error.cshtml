@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Erro";
+    int? codigo = ViewBag.Codigo;
+    string mensagem = codigo == 404
+        ? "A página que você procurou não existe."
+        : "Ocorreu um problema ao processar o pedido. Tente novamente em instantes.";
+}
+<div class="cartao">
+    <div class="cartao-corpo text-center py-5">
+        <i class="bi bi-exclamation-octagon txt-erro" style="font-size: 2.5rem;"></i>
+        <h1 class="mt-3">Algo não saiu como esperado</h1>
+        <p class="mb-1">@mensagem</p>
+        <p class="dica">Código da requisição: @ViewBag.IdRequisicao</p>
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Voltar ao início</a>
+    </div>
+</div>

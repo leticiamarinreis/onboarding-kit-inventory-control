@@ -1,0 +1,32 @@
+@model Kit
+@{
+    ViewData["Title"] = "Novo kit";
+    var estoque = (Estoque)ViewBag.Estoque;
+}
+<div class="page-head"><h1>Novo kit</h1></div>
+
+<div class="cartao" style="max-width: 720px;">
+    <div class="cartao-corpo">
+        <form asp-action="Create" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="alert @(estoque.Disponivel > 0 ? "alert-info" : "alert-warning") py-2">
+                O <strong>IdKit</strong> é gerado automaticamente ao salvar.
+                Cada kit cadastrado leva 1 unidade do estoque (disponível agora: <strong>@estoque.Disponivel</strong>).
+                @if (estoque.Disponivel == 0)
+                {
+                    <span>Sem estoque: registre uma <a asp-controller="Home" asp-action="Index" asp-fragment="estoque">entrada na tela principal</a>.</span>
+                }
+            </div>
+
+            <div class="mb-4" style="max-width: 280px;">
+                <label asp-for="Funcional" class="form-label"></label>
+                <input asp-for="Funcional" class="form-control" maxlength="7" minlength="7" pattern="[0-9]{7}" inputmode="numeric" placeholder="0000000" required autofocus />
+                <div class="dica">Exatamente 7 números. Cada colaborador tem um só kit.</div>
+                <span asp-validation-for="Funcional" class="erro-campo"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar kit</button>
+            <a class="btn btn-link" asp-action="Index">Cancelar</a>
+        </form>
+    </div>
+</div>

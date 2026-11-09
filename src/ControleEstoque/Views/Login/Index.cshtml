@@ -1,0 +1,46 @@
+@model Usuario
+@{
+    Layout = null;
+    string returnUrl = ViewBag.ReturnUrl;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Entrar - Controle de Estoque</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="tela-login">
+    <main class="login-caixa">
+        <section class="login-marca">
+            <i class="bi bi-gift"></i>
+            <h1>Controle de Estoque</h1>
+            <p>Kits de onboarding: entrada, saída, reservas e bloqueios com consistência garantida.</p>
+        </section>
+        <section class="login-form">
+            <h2 class="h4 mb-1">Entrar</h2>
+            <p class="dica mb-4">Use seu usuário e senha corporativos.</p>
+
+            <form asp-action="Index" method="post" novalidate>
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="NomeUsuario" class="form-label"></label>
+                    <input asp-for="NomeUsuario" class="form-control" maxlength="50" autocomplete="username" autofocus />
+                    <span asp-validation-for="NomeUsuario" class="erro-campo"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Senha" class="form-label"></label>
+                    <input asp-for="Senha" type="password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Senha" class="erro-campo"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

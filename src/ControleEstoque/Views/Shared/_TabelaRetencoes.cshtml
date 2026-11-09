@@ -1,0 +1,54 @@
+@model List<Retencao>
+@* "Home" no ViewData: quando a tabela está na tela principal, o Liberar volta para ela. *@
+@{
+    bool naHome = ViewData["Home"] as bool? ?? false;
+}
+<div class="tabela-rolavel">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Identificação</th>
+                <th class="text-end">Quantidade</th>
+                <th>Solicitação / motivo</th>
+                <th>Criada em</th>
+                <th>Situação</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td><strong>@r.Codigo</strong></td>
+                    <td class="text-end">@r.Quantidade</td>
+                    <td>@r.Referencia</td>
+                    <td class="nowrap">@r.CriadaEm.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (r.Ativa)
+                        {
+                            <span class="selo @(r.Tipo == TipoRetencao.Reserva ? "selo-reserva" : "selo-bloqueio")">@(r.Tipo == TipoRetencao.Reserva ? "Reserva ativa" : "Bloqueio ativo")</span>
+                        }
+                        else
+                        {
+                            <span class="selo selo-neutro">Liberada em @r.LiberadaEm?.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                    </td>
+                    <td class="acoes-linha">
+                        @if (r.Ativa)
+                        {
+                            <form asp-controller="Retencoes" asp-action="Liberar" method="post">
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <input type="hidden" name="voltarParaHome" value="@(naHome ? "true" : "false")" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Liberar</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="6" class="vazio">Nada por aqui.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

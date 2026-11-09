@@ -1,0 +1,25 @@
+@model List<Retencao>
+@{
+    ViewData["Title"] = "Reservas e bloqueios";
+    string situacao = (string)ViewBag.Situacao;
+}
+<div class="page-head">
+    <h1>Reservas e bloqueios</h1>
+    <span class="dica">Para reservar ou bloquear, use a tela principal.</span>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5"><input class="form-control" name="codigo" value="@ViewBag.Codigo" placeholder="Buscar pela identificação (ex.: RES-0003)" aria-label="Identificação" /></div>
+    <div class="col-md-3">
+        <select class="form-select" name="situacao" aria-label="Situação">
+            <option value="ativas" selected="@(situacao == "ativas")">Ativas</option>
+            <option value="liberadas" selected="@(situacao == "liberadas")">Liberadas</option>
+            <option value="todas" selected="@(situacao == "todas")">Todas</option>
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Filtrar</button></div>
+</form>
+
+<div class="cartao">
+    <partial name="_TabelaRetencoes" model="Model" />
+</div>

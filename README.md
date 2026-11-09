@@ -243,3 +243,11 @@ Este projeto parte de outro projeto meu, o [Resume Management System](https://gi
 ## Produto único e evolução para múltiplos produtos
 
 O enunciado fala em controle de estoque "para cada produto", mas nesta solução modelei apenas um produto, o kit de onboarding, com um estoque único e compartilhado. Optei por isso para concentrar o tempo nas regras de consistência e de concorrência, que são o núcleo do problema. Não implementei o suporte a outros produtos ou a variações de kit. Para implementá-lo, eu criaria uma tabela `Produtos` e passaria a ter uma linha de estoque por produto, adicionando `ProdutoId` às reservas, aos bloqueios e aos kits registrados. Os métodos do DAO passariam a receber o `produtoId` e continuariam dentro de uma transação, carregando apenas o estoque daquele produto. A classe `Estoque` não mudaria, porque já concentra as regras de um único item e bastaria uma instância por produto. Os IDs `RES-` e `BLQ-` continuariam como sequências globais, para que a consulta e a liberação seguissem funcionando sem informar o produto. Os dados existentes seriam migrados para um produto padrão "Kit de Onboarding". Os testes de regra seriam reaproveitados.
+
+## Imagens Tutoriada
+
+- **Tela de Login** 
+<img src="Captura de tela 2026-11-09 202911.png" alt="Tela inicial" width="700">
+
+- **Tela Home** 
+<img src="Captura de tela 2026-11-09 203027.png" alt="Tela inicial" width="700">
